@@ -13,6 +13,7 @@ import SignIn from './components/auth/SignIn'
 import SignOut from './components/auth/SignOut'
 import ChangePassword from './components/auth/ChangePassword'
 import apiUrl from './apiConfig'
+import Profile from './components/Profile'
 
 const App = () => {
   const [profile, setProfile] = useState([])
@@ -69,7 +70,7 @@ const App = () => {
 				return chats.json()
 			})
 			.then(chats => {
-				setChats(chats)
+				setChat(chats)
 			})
 			.catch(error => console.log(error))
 		}
@@ -109,6 +110,10 @@ const App = () => {
                 <ChangePassword msgAlert={msgAlert} user={user} />
               </RequireAuth>}
           />
+		  <Route
+		  	path='/profile'
+			element= {< Profile user={user} currentProfile={currentProfile} setCurrentProfile={setCurrentProfile} getProfile={getProfile} />}
+			/>
 				</Routes>
 				{msgAlerts.map((msgAlert) => (
 					<AutoDismissAlert
