@@ -1,5 +1,5 @@
 // import React, { Component, Fragment } from 'react'
-import React, { useState, Fragment } from 'react'
+import React, { useState, Fragment, useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { v4 as uuid } from 'uuid'
 
@@ -12,14 +12,18 @@ import SignUp from './components/auth/SignUp'
 import SignIn from './components/auth/SignIn'
 import SignOut from './components/auth/SignOut'
 import ChangePassword from './components/auth/ChangePassword'
+import apiUrl from './apiConfig'
 
 const App = () => {
-
+  const [profile, setProfile] = useState([])
+  const [chat, setChat] = useState([])
   const [user, setUser] = useState(null)
   const [msgAlerts, setMsgAlerts] = useState([])
+  const [currentProfile, setCurrentProfile] = useState(null)
 
   console.log('user in app', user)
   console.log('message alerts', msgAlerts)
+
   const clearUser = () => {
     console.log('clear user ran')
     setUser(null)
@@ -39,6 +43,43 @@ const App = () => {
       )
 		})
 	}
+	//GET USER PROF FROM DB
+	const getProfile = () => {
+		if (user != null) {
+			fetch(apiUrl + `/profiles/${user._id}`)
+			.then(profile => {
+				return profile.json()
+			})
+			.then(profile =>{
+				setCurrentProfile(profile[0])
+				return 'complete'
+			})
+			.catch(error => console.log(error))
+		}
+	}
+
+	const getChats = () => {
+		if (user != null) {
+			fetch(apiUrl + '/jobs/user', {
+				headers : {
+					'Authorization': 'Bearer' + user.token
+				}
+			})
+			.then(chats => {
+				return chats.json()
+			})
+			.then(chats => {
+				setChats(chats)
+			})
+			.catch(error => console.log(error))
+		}
+	}
+
+	//runs functions when user logs in
+	useEffect(()=> {
+		getProfile()
+		getChats()
+	}, [user])
 
 		return (
 			<Fragment>
