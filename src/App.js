@@ -1,4 +1,3 @@
-// import React, { Component, Fragment } from 'react'
 import React, { useState, Fragment, useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { v4 as uuid } from 'uuid'
@@ -22,7 +21,7 @@ const App = () => {
   const [msgAlerts, setMsgAlerts] = useState([])
   const [currentProfile, setCurrentProfile] = useState(null)
 
-  console.log('user in app', user)
+
   console.log('message alerts', msgAlerts)
 
   const clearUser = () => {
@@ -49,7 +48,8 @@ const App = () => {
 		if (user != null) {
 			fetch(apiUrl + `/profiles/${user._id}`)
 			.then(profile => {
-				return profile.json()
+				console.log('api res', profile)
+				profile.json()
 			})
 			.then(profile =>{
 				setCurrentProfile(profile[0])
@@ -59,27 +59,27 @@ const App = () => {
 		}
 	}
 
-	const getChats = () => {
-		if (user != null) {
-			fetch(apiUrl + '/jobs/user', {
-				headers : {
-					'Authorization': 'Bearer' + user.token
-				}
-			})
-			.then(chats => {
-				return chats.json()
-			})
-			.then(chats => {
-				setChat(chats)
-			})
-			.catch(error => console.log(error))
-		}
-	}
+	// const getChats = () => {
+	// 	if (user != null) {
+	// 		fetch(apiUrl + '/chats/user', {
+	// 			headers : {
+	// 				'Authorization': 'Bearer' + user.token
+	// 			}
+	// 		})
+	// 		.then(chats => {
+	// 			return chats.json()
+	// 		})
+	// 		.then(chats => {
+	// 			setChat(chats)
+	// 		})
+	// 		.catch(error => console.log(error))
+	// 	}
+	// }
 
 	//runs functions when user logs in
 	useEffect(()=> {
 		getProfile()
-		getChats()
+		// getChats()
 	}, [user])
 
 		return (

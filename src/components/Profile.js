@@ -1,11 +1,10 @@
-import { response } from 'express';
-import { prependOnceListener } from 'process';
-import { stringify } from 'querystring';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
 import apiUrl from '../apiConfig';
 
+// define new profile
 function Profile(props) {
+    console.log("props.user", props.user)
     const [newProfile, setNewProfile] = useState({
         name: '',
         bio: '',
@@ -14,7 +13,7 @@ function Profile(props) {
         owner: props.user._id
     })
     const [edit, setEdit] = useState(false)
-
+// helper func
     const editProfile = (e) => {
         setEdit(true)
         setNewProfile({
@@ -29,7 +28,7 @@ function Profile(props) {
     const handleChange = (e) => {
         setNewProfile({...newProfile, [e.target.name]: e.target.value})
     }
-
+//  set edit
     const handleEdit = (e) => {
         e.preventDefault()
         let preJSONBody = {
@@ -39,6 +38,7 @@ function Profile(props) {
             likedUsers: newProfile.likedUsers,
             owner: newProfile.owner
         }
+        //  fetch to update profile
         fetch(apiUrl + `profiles/${props.currentProfile._id}`, {
             method: 'PATCH',
             body: JSON.stringify(preJSONBody),
@@ -52,12 +52,13 @@ function Profile(props) {
                 likedUsers: [],
                 owner: props.user._id
             })
+            
             setEdit(false)
             props.getProfile()
         })
         .catch(error => { console.log(error) })
     }
-
+//  creat first prof
     const handleSubmit = (e) => {
         e.preventDefault()
         let preJSONBody = {
@@ -85,7 +86,8 @@ function Profile(props) {
     })
     .catch(error => {console.log(error)})
 
-    //add forms at bottom
+//  forms coming
+    
     let display
     if (props.currentProfile === undefined) {
         display = (
@@ -102,17 +104,30 @@ function Profile(props) {
                     <label htmlFor='locations'>Inteded Destinations:</label>
                     <input onChange={handleChange} type='text' name='locations' id='locations' value={newProfile.locations} />
                 </div>
+                <input className='brand-button' type='submit' value='submit'/>
             </form>
         )
     }
-
+//if edit info is false show for
     else {
         if (edit === false){
             const locationList = props.currentProfile.locations.map(location => {
                 return (<li>{location}</li>)
             })
             display = (
-                <form>
+                 <div id='profile-container'>
+                    <h1>{props.currentProfile.name}'s Profile</h1>
+                    <h3>Locations:</h3>
+                    <ul id='location-ul'>
+                        {locationList}
+                    </ul>
+                    <h4>Bio: {props.currentProfile.bio}</h4>
+                    <button className='brand-button' onClick={editProfile}>Edit Profile</button>
+                </div>    
+            )
+    }else{
+        display = (
+            <form onSubmit={handleEdit}>
                 <div>
                     <label htmlFor='name'>Name:</label>
                     <input onChange={{handleChange}} type='text' name='name' id='name' value={newProfile.name} required></input>
@@ -127,15 +142,17 @@ function Profile(props) {
                 </div>
                 <input className='brand-button' type='submit' value='submit'/>
             </form>)
-        }
+    }
+
     }
     return (
         <div>
             {display}
         </div>
     )
+    }
 }
-}
+
  export default Profile   
 
     
