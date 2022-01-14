@@ -1,6 +1,7 @@
-import React, { useState, Fragment, useEffect } from 'react'
+import React, { useState, Fragment, useEffect} from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { v4 as uuid } from 'uuid'
+
 
 // import AuthenticatedRoute from './components/shared/AuthenticatedRoute'
 import AutoDismissAlert from './components/shared/AutoDismissAlert/AutoDismissAlert'
@@ -11,15 +12,19 @@ import SignUp from './components/auth/SignUp'
 import SignIn from './components/auth/SignIn'
 import SignOut from './components/auth/SignOut'
 import ChangePassword from './components/auth/ChangePassword'
+import CreateProfile from './components/CreateProfile'
 import apiUrl from './apiConfig'
-import Profile from './components/Profile'
+
+import axios from './apiConfig'
 
 const App = () => {
-  const [profile, setProfile] = useState([])
-  const [chat, setChat] = useState([])
+//user for auth
   const [user, setUser] = useState(null)
+  // current user's prof
+  const [profile, setProfile] = useState({})
   const [msgAlerts, setMsgAlerts] = useState([])
-  const [currentProfile, setCurrentProfile] = useState(null)
+  //const [currentProfile, setCurrentProfile] = useState(null)
+ 
 
 
   console.log('message alerts', msgAlerts)
@@ -43,50 +48,41 @@ const App = () => {
       )
 		})
 	}
-	//GET USER PROF FROM DB
-	const getProfile = () => {
-		if (user != null) {
-			fetch(apiUrl + `/profiles/${user._id}`)
-			.then(profile => {
-				console.log('api res', profile)
-				profile.json()
-			})
-			.then(profile =>{
-				setCurrentProfile(profile[0])
-				return 'complete'
-			})
-			.catch(error => console.log(error))
-		}
+	//GET A USER'S PROFILE 
+	const getProfile = () =>{
+		axios.get(apiUrl + `/profile/:_id`)
+		.then((profile) => {
+			console.log("oneeee user's profile", profile)
+			setProfile(profile)
+		})
+		.catch((err) => console.log(err))
 	}
 
-	// const getChats = () => {
+	// //Get user from backend
+	// const getProfile = () => {
 	// 	if (user != null) {
-	// 		fetch(apiUrl + '/chats/user', {
-	// 			headers : {
-	// 				'Authorization': 'Bearer' + user.token
-	// 			}
+	// 		fetch(apiUrl + `/profile/${user._id}`)
+	// 		.then(profile => {
+	// 			console.log("this is profile", profile)
+	// 			return profile.json()
 	// 		})
-	// 		.then(chats => {
-	// 			return chats.json()
-	// 		})
-	// 		.then(chats => {
-	// 			setChat(chats)
+	// 		.then(profile => {
+	// 			setCurrentProfile(profile[0])
+	// 			return 'complete'
 	// 		})
 	// 		.catch(error => console.log(error))
 	// 	}
 	// }
-
-	//runs functions when user logs in
-	useEffect(()=> {
-		getProfile()
-		// getChats()
-	}, [user])
+	// //To run on login
+	// useEffect(() => {
+	// 	getProfile()
+	// }, [getProfile])
 
 		return (
 			<Fragment>
 				<Header user={user} />
 				<Routes>
-					<Route path='/' element={<Home msgAlert={msgAlert} user={user} />} />
+					<Route path='/' element={<Home msgAlert={msgAlert} user={user} getProfile={getProfile} />} />
 					<Route
 						path='/sign-up'
 						element={<SignUp msgAlert={msgAlert} setUser={setUser} />}
@@ -95,6 +91,12 @@ const App = () => {
 						path='/sign-in'
 						element={<SignIn msgAlert={msgAlert} setUser={setUser} />}
 					/>
+					<Route
+						path='/create-profile'
+						element={<CreateProfile user={user} setProfile={setProfile}/>}
+					/>
+
+
           <Route
             path='/sign-out'
             element={
@@ -110,11 +112,7 @@ const App = () => {
                 <ChangePassword msgAlert={msgAlert} user={user} />
               </RequireAuth>}
           />
-		  <Route
-		  	path='/profile'
-			element= {< Profile user={user} currentProfile={currentProfile} setCurrentProfile={setCurrentProfile} getProfile={getProfile} />}
-			/>
-				</Routes>
+		  </Routes>
 				{msgAlerts.map((msgAlert) => (
 					<AutoDismissAlert
 						key={msgAlert.id}
